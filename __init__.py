@@ -46,11 +46,24 @@ class GLUIB_OT_open_window(Operator):
     bl_label = "Open window"
     bl_options = {'REGISTER'}
 
+    _running = False
+
+    @classmethod
+    def poll(cls, context):
+        return not cls._running
+
+    @classmethod
+    def set_status(cls):
+        cls._running = not cls._running
+
     def invoke(self, context, event):
         self.window = GlUiApplication.GlWindow(context)
         self.window.setGeometry(10, 10, 400, 200)
         global TEST
         TEST = self.window
+
+        self.set_status()
+
         context.window_manager.modal_handler_add(self)
 
         self._handle = bpy.types.SpaceView3D.draw_handler_add(self.window.draw,
@@ -64,6 +77,7 @@ class GLUIB_OT_open_window(Operator):
 
         if event.type == 'ESC':
             TEST = None
+            self.set_status()
             bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
             return {'CANCELLED'}
 

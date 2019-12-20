@@ -23,11 +23,11 @@ import bpy
 
 from . import GlUiWidgets
 
-from .gl import GPU_Quad
+from .GlUiGl import GPU_Quad
+from.GlUiCore import GlArea
 
 
 class GlWindow(GlUiWidgets.GlWidget):
-
     def __init__(self, context):
         super(GlWindow, self).__init__()
         self._childrens = []
@@ -36,31 +36,36 @@ class GlWindow(GlUiWidgets.GlWidget):
 
         self._header = GPU_Quad(self)
         self._header_height = 30
-        self._window_body = GPU_Quad(self)
+        self._frame = GPU_Quad(self)
 
     def add_widget(self, widget):
         self._childrens.append(widget)
 
     def draw(self):
         panel_color = bpy.context.preferences.themes['Default'].view_3d.space.panelcolors
+        min_x, max_x, min_y, max_y = GlArea.getSize(self._context,
+                                                    "VIEW_3D",
+                                                    self.x,
+                                                    self.y
+                                                    )
         self._header.vertices = (
-            (self.x, self.y+self.height-self._header_height),
-            (self.x + self.width, self.y+self.height-self._header_height),
-            (self.x, self.y+self.height),
-            (self.x + self.width, self.y+self.height)
-            )
+            (min_x, min_y),
+            (min_x + self.width, min_y),
+            (min_x, min_y - self._header_height),
+            (min_x + self.width, min_y - self._header_height)
+        )
         self._header.color = panel_color.header
 
-        self._window_body.vertices = (
-            (self.x, self.y),
-            (self.x+self.width, self.y),
-            (self.x, self.y+self.height-self._header_height),
-            (self.x+self.width, self.y+self.height-self._header_height)
+        self._frame.vertices = (
+            (min_x, min_y - self._header_height),
+            (min_x + self.width, min_y - self._header_height),
+            (min_x, min_y - self.height),
+            (min_x + self.width, min_y - self.height),
             )
-        self._window_body.color = panel_color.back
+        self._frame.color = panel_color.back
 
         self._header.draw()
-        self._window_body.draw()
+        self._frame.draw()
 
     @property
     def is_closed(self):

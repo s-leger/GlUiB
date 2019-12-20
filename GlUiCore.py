@@ -19,100 +19,49 @@
 # <pep8 compliant>
 
 
-class GlCoordonates:
+class GlObject:
     @property
-    def x(self):
-        """
-        Return the x coordonate.
-        :return: int
-        """
-        return self._x
+    def parent(self):
+        if hasattr(self, "_parent"):
+            return self._parent
+        return None
 
-    def setX(self, x):
-        """
-        Set the x coordonate of the given x coordonate.
-        :param x: int
-        """
-        self._x = max(0, x)
+class GlArea:
+    @staticmethod
+    def getArea(context, area_type):
+        for area in context.screen.areas:
+            if area.type == area_type:
+                return area
+        return None
 
-    @property
-    def y(self):
-        """
-        Return the y coordonate.
-        :return: int
-        """
-        return self._y
+    @staticmethod
+    def view_3dSize(context, area, margin_x, margin_y):
+        w = area.width
+        h = area.height
+        min_x = 0 + margin_x
+        min_y = h - margin_y
+        max_x = w
+        max_y = 0
+        system = context.preferences.system
 
-    def setY(self, y):
-        """
-        Set the y coordonate of the given y coordonate.
-        :param y: int
-        """
-        self._y = max(0, y)
+        for region in area.regions:
+            if system.use_region_overlap:
+                if region.type == 'TOOLS':
+                    min_x += region.width
+                if region.type == 'UI':
+                    max_x -= region.width
+            if region.type == 'HEADER':
+                min_y -= region.height
 
+        return min_x, max_x, min_y, max_y
 
-class GlSize:
-    @property
-    def height(self):
-        """
-        Return the height.
-        :return: int
-        """
-        return self._height
+    @classmethod
+    def getSize(cls, context, area_type, margin_x, margin_y):
+        area = cls.getArea(context, area_type)
+        if area is not None:
+            return getattr(cls, f"{area_type.lower()}Size")(context,
+                                                            area,
+                                                            margin_x,
+                                                            margin_y)
 
-    def setHeight(self, h):
-        """
-        Set the height to the given height.
-        :param h: int
-        """
-        self._height = max(0, h)
-
-    @property
-    def width(self):
-        """
-        Return the width.
-        :return: int
-        """
-        return self._width
-
-    def setWidth(self, w):
-        """
-        Set the width of the given width.
-        :param w: int
-        """
-        self._width = max(0, w)
-
-    def resize(self, w, h):
-        """
-        Change the size with the given width and height.
-        :param w: int
-        :param h: int
-        """
-        self.setWidth(w)
-        self.setHeight(h)
-
-    def transpose(self):
-        """
-        Swap the width and the height values.
-        """
-        self._width, self._height = self._height, self._width
-
-
-class GlObject(GlCoordonates, GlSize):
-
-    def move(self, x, y):
-        self.setX(x)
-        self.setY(y)
-
-    def setGeometry(self, x, y, w, h):
-        """
-        Set the coordonates with the given x and y coordonates.
-        Set the size with the given width and height.
-        :param x: int
-        :param y: int
-        :param w: int
-        :param h: int
-        """
-        self.setX(x)
-        self.setY(y)
-        self.resize(w, h)
+        raise AttributeError(f"{area_type} not found")
