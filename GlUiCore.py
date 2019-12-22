@@ -32,12 +32,6 @@ class GlObject:
                 0 < event.mouse_region_x - x < w and
                 y > event.mouse_region_y > y - h)
 
-    @property
-    def parent(self):
-        if hasattr(self, "_parent"):
-            return self._parent
-        return None
-
 
 class GlArea:
     def __init__(self):

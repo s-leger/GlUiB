@@ -23,8 +23,9 @@ from . import GlUiCore
 
 
 class GlWidget(GlUiCore.GlObject):
-    def __init__(self):
+    def __init__(self, parent=None):
         GlUiCore.GlObject.__init__(self)
+        self._parent = parent
         self._x = 0
         self._y = 0
         self._width = 300
@@ -38,7 +39,8 @@ class GlWidget(GlUiCore.GlObject):
         """
         return self._x
 
-    def setX(self, x):
+    @x.setter
+    def x(self, x):
         """
         Set the x coordonate relative to the parent with the given x.
         :param x: int
@@ -53,7 +55,8 @@ class GlWidget(GlUiCore.GlObject):
         """
         return self._x
 
-    def setY(self, y):
+    @y.setter
+    def y(self, y):
         """
         Set the y coordonate relative to the parent with the given y.
         :param y: int
@@ -68,32 +71,32 @@ class GlWidget(GlUiCore.GlObject):
         """
         return (self.x, self.y)
 
-    def move(self, x, y):
+    @coords.setter
+    def coords(self, coords):
         """
         Set the coordonates relative to the parent with the given x and y.
         :param x: int
         :param y: int
         """
-        self.setX(x)
-        self.setY(y)
+        self.x, self.y = coords
 
-    def globalX(self, parent):
+    def globalX(self):
         """
         Return global x coordonate.
-        :param parent: parent class
         :return: int
         """
-        if parent is not None:
-            return parent.globalX + self.x
+        if self._parent is not None:
+            return self.parent.globalX + self.x
+        return self.x
 
-    def globalY(self, parent):
+    def globalY(self):
         """
         Return global y coordonate.
-        :param parent: parent class
         :return: int
         """
-        if parent is not None:
-            return parent.globalY + self.y
+        if self._parent is not None:
+            return self.parent.globalY + self.y
+        return self.y
 
     @property
     def height(self):
@@ -103,7 +106,8 @@ class GlWidget(GlUiCore.GlObject):
         """
         return self._height
 
-    def setHeight(self, h):
+    @height.setter
+    def height(self, h):
         """
         Set the height with the given height value.
         :param h: int
@@ -118,7 +122,8 @@ class GlWidget(GlUiCore.GlObject):
         """
         return self._width
 
-    def setWidth(self, w):
+    @width.setter
+    def width(self, w):
         """
         Set the width with the given width value.
         :param w: int
@@ -131,14 +136,13 @@ class GlWidget(GlUiCore.GlObject):
         :param w: int
         :param h: int
         """
-        self.setWidth(w)
-        self.setHeight(h)
+        self.width, self.height = w, h
 
     def transpose(self):
         """
         Swap the width and the height values of the widget.
         """
-        self._width, self._height = self._height, self._width
+        self.width, self.height = self.height, self.width
 
     def setGeometry(self, x, y, w, h):
         """
@@ -149,5 +153,5 @@ class GlWidget(GlUiCore.GlObject):
         :param w: int
         :param h: int
         """
-        self.move(x, y)
+        self.coords = x, y
         self.resize(w, h)

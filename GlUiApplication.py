@@ -22,9 +22,9 @@
 import bpy
 
 from . import GlUiWidgets
-
-from .GlUiGl import GPU_Quad
 from . import GlUiCore
+
+from .GlUiGl import GPU_QuadPoly
 
 
 class GlWindow(GlUiWidgets.GlWidget, GlUiCore.GlArea):
@@ -37,9 +37,9 @@ class GlWindow(GlUiWidgets.GlWidget, GlUiCore.GlArea):
         self._area_type = area
         self._close = False
 
-        self._header = GPU_Quad(self)
+        self._header = GPU_QuadPoly(self)
         self._header_height = 30
-        self._frame = GPU_Quad(self)
+        self._frame = GPU_QuadPoly(self)
 
     @property
     def context(self):
@@ -69,24 +69,24 @@ class GlWindow(GlUiWidgets.GlWidget, GlUiCore.GlArea):
         panel_color = theme.view_3d.space.panelcolors
         self.getSize(self.context, self.areaType)
 
-        self._header.setVertices(
-                ((self.globalX, self.globalY),
-                 (self.globalX + self.width, self.globalY),
-                 (self.globalX, self.globalY - self._header_height),
-                 (self.globalX + self.width, self.globalY - self._header_height))
-                )
+        self._header.vertices = (
+            (self.globalX, self.globalY),
+            (self.globalX + self.width, self.globalY),
+            (self.globalX, self.globalY - self._header_height),
+            (self.globalX + self.width, self.globalY - self._header_height)
+            )
         if self.is_hover:
-            self._header.setColor(theme.user_interface.wcol_radio.inner_sel)
+            self._header.color = theme.user_interface.wcol_radio.inner_sel
         else:
-            self._header.setColor(panel_color.header)
+            self._header.color = panel_color.header
 
-        self._frame.setVertices(
-                ((self.globalX, self.globalY - self._header_height),
-                 (self.globalX + self.width, self.globalY - self._header_height),
-                 (self.globalX, self.globalY - self.height),
-                 (self.globalX + self.width, self.globalY - self.height))
-                )
-        self._frame.setColor(panel_color.back)
+        self._frame.vertices = (
+            (self.globalX, self.globalY - self._header_height),
+            (self.globalX + self.width, self.globalY - self._header_height),
+            (self.globalX, self.globalY - self.height),
+            (self.globalX + self.width, self.globalY - self.height)
+            )
+        self._frame.color = panel_color.back
 
         self._header.draw()
         self._frame.draw()

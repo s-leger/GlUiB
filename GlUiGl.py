@@ -25,7 +25,7 @@ import bgl
 from gpu_extras.batch import batch_for_shader
 
 
-class GPU_Quad:
+class GPU_QuadPoly:
     def __init__(self, parent):
         self._parent = parent
         self._vertices = ()
@@ -40,20 +40,25 @@ class GPU_Quad:
     def vertices(self):
         return self._vertices
 
-    def setVertices(self, vertices):
+    @vertices.setter
+    def vertices(self, vertices):
         self._vertices = vertices
 
     @property
     def color(self):
         return self._color
 
-    def setColor(self, value):
+    @color.setter
+    def color(self, value):
         self._color = value
 
     def draw(self):
         shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
-        batch = batch_for_shader(shader, 'TRIS', {"pos": self.vertices},
-                                      indices=self._indices)
+        batch = batch_for_shader(shader,
+                                 'TRIS',
+                                 {"pos": self.vertices},
+                                 indices=self._indices
+                                 )
         shader.bind()
         shader.uniform_float("color", self.color)
         bgl.glEnable(bgl.GL_BLEND)
