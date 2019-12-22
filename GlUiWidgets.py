@@ -19,49 +19,49 @@
 # <pep8 compliant>
 
 
-from . import GlUiCore
+from .GlUiCore import GlObject
 
 
-class GlWidget(GlUiCore.GlObject):
+class GlWidget(GlObject):
     def __init__(self, parent=None):
-        GlUiCore.GlObject.__init__(self)
+        GlObject.__init__(self)
         self._parent = parent
-        self._x = 0
-        self._y = 0
-        self._width = 300
-        self._height = 100
+        self.top = 0
+        self.left = 0
+        self.width = 300
+        self.height = 100
 
     @property
-    def x(self):
-        """
-        Property that return the x coordonates relative to the parent
-        :return: int
-        """
-        return self._x
-
-    @x.setter
-    def x(self, x):
-        """
-        Set the x coordonate relative to the parent with the given x.
-        :param x: int
-        """
-        self._x = x
-
-    @property
-    def y(self):
+    def bottom(self):
         """
         Property that return the y coordonates relative to the parent
         :return: int
         """
-        return self._x
+        return self.top - self.height
 
-    @y.setter
-    def y(self, y):
+    @bottom.setter
+    def bottom(self, val):
         """
         Set the y coordonate relative to the parent with the given y.
-        :param y: int
+        :param val: int
         """
-        self._y = y
+        self.top = val + self.height
+
+    @property
+    def right(self):
+        """
+        Property that return the y coordonates relative to the parent
+        :return: int
+        """
+        return self.left + self.width
+
+    @right.setter
+    def right(self, val):
+        """
+        Set the y coordonate relative to the parent with the given y.
+        :param val: int
+        """
+        self.left = val - self.width
 
     @property
     def coords(self):
@@ -69,35 +69,56 @@ class GlWidget(GlUiCore.GlObject):
         Property that return the 2D coordonates relative to the parent.
         :return: tuple of int
         """
-        return (self.x, self.y)
+        return (self.top, self.left)
 
     @coords.setter
     def coords(self, coords):
         """
         Set the coordonates relative to the parent with the given x and y.
-        :param x: int
-        :param y: int
+        :param coords: tuple (int, int)
         """
-        self.x, self.y = coords
-
-    def globalX(self):
+        self.top, self.left = coords
+    
+    @property
+    def global_left(self):
         """
-        Return global x coordonate.
+        Return global left coordonate.
         :return: int
         """
         if self._parent is not None:
-            return self.parent.globalX + self.x
-        return self.x
-
-    def globalY(self):
+            return self._parent.left + self.left
+        return self.left
+    
+    @global_left.setter
+    def global_left(self, val):
         """
-        Return global y coordonate.
+        Set global left coordonate.
+        """
+        if self._parent is not None:
+            self.left = val - self._parent.left
+        else:
+            self.left = val
+    
+    @property
+    def global_top(self):
+        """
+        Return global top coordonate.
         :return: int
         """
         if self._parent is not None:
-            return self.parent.globalY + self.y
-        return self.y
-
+            return self._parent.top + self.top
+        return self.top
+    
+    @global_top.setter
+    def global_top(self, val):
+        """
+        Set global top coordonate.
+        """
+        if self._parent is not None:
+            self.top = val - self._parent.top
+        else:
+            self.top = val
+    
     @property
     def height(self):
         """
