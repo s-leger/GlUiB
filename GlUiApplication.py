@@ -24,45 +24,69 @@ import bpy
 from . import GlUiWidgets
 
 from .GlUiGl import GPU_Quad
-from.GlUiCore import GlArea
+from . import GlUiCore
 
 
-class GlWindow(GlUiWidgets.GlWidget):
-    def __init__(self, context):
-        super(GlWindow, self).__init__()
+class GlWindow(GlUiWidgets.GlWidget, GlUiCore.GlArea):
+    def __init__(self, context, area):
+        GlUiWidgets.GlWidget.__init__(self)
+        GlUiCore.GlArea.__init__(self)
+
         self._childrens = []
         self._context = context
+        self._area_type = area
         self._close = False
 
         self._header = GPU_Quad(self)
         self._header_height = 30
         self._frame = GPU_Quad(self)
 
-    def add_widget(self, widget):
+    @property
+    def context(self):
+        return self._context
+
+    @property
+    def areaType(self):
+        return self._area_type
+
+    @property
+    def globalX(self):
+        return self.min_x + self.x
+
+    @property
+    def globalY(self):
+        return self.min_y - self.y
+
+    def addWidget(self, widget):
         self._childrens.append(widget)
 
-    def draw(self):
-        panel_color = bpy.context.preferences.themes['Default'].view_3d.space.panelcolors
-        min_x, max_x, min_y, max_y = GlArea.getSize(self._context,
-                                                    "VIEW_3D",
-                                                    self.x,
-                                                    self.y
-                                                    )
-        self._header.vertices = (
-            (min_x, min_y),
-            (min_x + self.width, min_y),
-            (min_x, min_y - self._header_height),
-            (min_x + self.width, min_y - self._header_height)
-        )
-        self._header.color = panel_color.header
+    def event(self, event):
+        if event.type == "MOUSEMOVE":
+            self.setIsHover(event, self.globalX, self.globalY, self.width, self.height)
 
-        self._frame.vertices = (
-            (min_x, min_y - self._header_height),
-            (min_x + self.width, min_y - self._header_height),
-            (min_x, min_y - self.height),
-            (min_x + self.width, min_y - self.height),
-            )
-        self._frame.color = panel_color.back
+    def draw(self):
+        theme = bpy.context.preferences.themes['Default']
+        panel_color = theme.view_3d.space.panelcolors
+        self.getSize(self.context, self.areaType)
+
+        self._header.setVertices(
+                ((self.globalX, self.globalY),
+                 (self.globalX + self.width, self.globalY),
+                 (self.globalX, self.globalY - self._header_height),
+                 (self.globalX + self.width, self.globalY - self._header_height))
+                )
+        if self.is_hover:
+            self._header.setColor(theme.user_interface.wcol_radio.inner_sel)
+        else:
+            self._header.setColor(panel_color.header)
+
+        self._frame.setVertices(
+                ((self.globalX, self.globalY - self._header_height),
+                 (self.globalX + self.width, self.globalY - self._header_height),
+                 (self.globalX, self.globalY - self.height),
+                 (self.globalX + self.width, self.globalY - self.height))
+                )
+        self._frame.setColor(panel_color.back)
 
         self._header.draw()
         self._frame.draw()

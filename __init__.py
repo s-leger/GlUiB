@@ -38,8 +38,6 @@ from bpy.types import Operator, Panel
 from . import GlUiApplication
 
 
-TEST = None
-
 class GLUIB_OT_open_window(Operator):
     '''  '''
     bl_idname = 'gluib.open_window'
@@ -57,29 +55,34 @@ class GLUIB_OT_open_window(Operator):
         cls._running = not cls._running
 
     def invoke(self, context, event):
-        self.window = GlUiApplication.GlWindow(context)
+        self.window = GlUiApplication.GlWindow(context, "VIEW_3D")
         self.window.setGeometry(10, 10, 400, 200)
-        global TEST
-        TEST = self.window
-
         self.set_status()
-
         context.window_manager.modal_handler_add(self)
 
-        self._handle = bpy.types.SpaceView3D.draw_handler_add(self.window.draw,
-                                                           (),
-                                               'WINDOW', 'POST_PIXEL')
+        self._handle = bpy.types.SpaceView3D.draw_handler_add(
+                self.window.draw,
+                (),
+                'WINDOW',
+                'POST_PIXEL')
         return {'RUNNING_MODAL'}
 
     def modal(self, context, event):
-        global TEST
         context.area.tag_redraw()
-
+        self.window.event(event)
         if event.type == 'ESC':
-            TEST = None
             self.set_status()
             bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
             return {'CANCELLED'}
+
+        if self.window.is_hover:
+            if event.type == "RIGHTMOUSE":
+                self.set_status()
+                bpy.types.SpaceView3D.draw_handler_remove(self._handle,
+                                                          'WINDOW')
+                return {'CANCELLED'}
+
+            return {'RUNNING_MODAL'}
 
         return {'PASS_THROUGH'}
 

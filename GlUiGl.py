@@ -24,6 +24,7 @@ import bgl
 
 from gpu_extras.batch import batch_for_shader
 
+
 class GPU_Quad:
     def __init__(self, parent):
         self._parent = parent
@@ -32,19 +33,21 @@ class GPU_Quad:
         self._color = (0.8, 0.8, 0.8, 1.0)
 
     @property
+    def parent(self):
+        return self._parent
+
+    @property
     def vertices(self):
         return self._vertices
 
-    @vertices.setter
-    def vertices(self, value):
-        self._vertices = value
+    def setVertices(self, vertices):
+        self._vertices = vertices
 
     @property
     def color(self):
         return self._color
 
-    @color.setter
-    def color(self, value):
+    def setColor(self, value):
         self._color = value
 
     def draw(self):

@@ -24,6 +24,7 @@ from . import GlUiCore
 
 class GlWidget(GlUiCore.GlObject):
     def __init__(self):
+        GlUiCore.GlObject.__init__(self)
         self._x = 0
         self._y = 0
         self._width = 300
@@ -32,14 +33,14 @@ class GlWidget(GlUiCore.GlObject):
     @property
     def x(self):
         """
-        Return the x coordonates
+        Property that return the x coordonates relative to the parent
         :return: int
         """
         return self._x
 
     def setX(self, x):
         """
-        Set the x coordonate.
+        Set the x coordonate relative to the parent with the given x.
         :param x: int
         """
         self._x = x
@@ -47,60 +48,64 @@ class GlWidget(GlUiCore.GlObject):
     @property
     def y(self):
         """
-        Return the x coordonates
+        Property that return the y coordonates relative to the parent
         :return: int
         """
         return self._x
 
     def setY(self, y):
         """
-        Set the y coordonate.
+        Set the y coordonate relative to the parent with the given y.
         :param y: int
         """
         self._y = y
 
+    @property
+    def coords(self):
+        """
+        Property that return the 2D coordonates relative to the parent.
+        :return: tuple of int
+        """
+        return (self.x, self.y)
+
     def move(self, x, y):
         """
-        Set the coordonates with the given x and y coordonates.
+        Set the coordonates relative to the parent with the given x and y.
         :param x: int
         :param y: int
         """
         self.setX(x)
         self.setY(y)
 
-    @property
-    def globalX(self):
+    def globalX(self, parent):
         """
-        Return the global x coordonate
+        Return global x coordonate.
+        :param parent: parent class
         :return: int
         """
-        parent = self.parent
         if parent is not None:
-            return self.parent.globalX + self.x
-        return self.x
+            return parent.globalX + self.x
 
-    @property
-    def globalY(self):
+    def globalY(self, parent):
         """
-        Return the global y coordonate
+        Return global y coordonate.
+        :param parent: parent class
         :return: int
         """
-        parent = self.parent
         if parent is not None:
-            return self.parent.globalY + self.y
-        return self.y
+            return parent.globalY + self.y
 
     @property
     def height(self):
         """
-        Return the height.
+        Property that return the height of the widget.
         :return: int
         """
         return self._height
 
     def setHeight(self, h):
         """
-        Set the height to the given height.
+        Set the height with the given height value.
         :param h: int
         """
         self._height = max(0, h)
@@ -108,21 +113,21 @@ class GlWidget(GlUiCore.GlObject):
     @property
     def width(self):
         """
-        Return the width.
+        Property that return the width of the widget.
         :return: int
         """
         return self._width
 
     def setWidth(self, w):
         """
-        Set the width of the given width.
+        Set the width with the given width value.
         :param w: int
         """
         self._width = max(0, w)
 
     def resize(self, w, h):
         """
-        Change the size with the given width and height.
+        Change the size of the widget with the given width and height values.
         :param w: int
         :param h: int
         """
@@ -131,7 +136,7 @@ class GlWidget(GlUiCore.GlObject):
 
     def transpose(self):
         """
-        Swap the width and the height values.
+        Swap the width and the height values of the widget.
         """
         self._width, self._height = self._height, self._width
 

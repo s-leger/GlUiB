@@ -20,48 +20,73 @@
 
 
 class GlObject:
+    def __init__(self):
+        self._is_hover = False
+
+    @property
+    def is_hover(self):
+        return self._is_hover
+
+    def setIsHover(self, event, x, y, w, h):
+        self._is_hover = (
+                0 < event.mouse_region_x - x < w and
+                y > event.mouse_region_y > y - h)
+
     @property
     def parent(self):
         if hasattr(self, "_parent"):
             return self._parent
         return None
 
+
 class GlArea:
-    @staticmethod
-    def getArea(context, area_type):
+    def __init__(self):
+        self._min_x = 0
+        self._min_y = 0
+        self._max_x = 0
+        self._max_y = 0
+
+    @property
+    def min_x(self):
+        return self._min_x
+
+    @property
+    def max_x(self):
+        return self._max_x
+
+    @property
+    def min_y(self):
+        return self._min_y
+
+    @property
+    def max_y(self):
+        return self._max_y
+
+    def getArea(self, context, area_type):
         for area in context.screen.areas:
             if area.type == area_type:
                 return area
         return None
 
-    @staticmethod
-    def view_3dSize(context, area, margin_x, margin_y):
+    def view_3dSize(self, context, area):
         w = area.width
         h = area.height
-        min_x = 0 + margin_x
-        min_y = h - margin_y
-        max_x = w
-        max_y = 0
+        self._min_x = 0
+        self._min_y = h
+        self._max_x = w
+        self._max_y = 0
         system = context.preferences.system
 
         for region in area.regions:
             if system.use_region_overlap:
                 if region.type == 'TOOLS':
-                    min_x += region.width
+                    self._min_x += region.width
                 if region.type == 'UI':
-                    max_x -= region.width
+                    self._max_x -= region.width
             if region.type == 'HEADER':
-                min_y -= region.height
+                self._min_y -= region.height
 
-        return min_x, max_x, min_y, max_y
-
-    @classmethod
-    def getSize(cls, context, area_type, margin_x, margin_y):
-        area = cls.getArea(context, area_type)
+    def getSize(self, context, area_type):
+        area = self.getArea(context, area_type)
         if area is not None:
-            return getattr(cls, f"{area_type.lower()}Size")(context,
-                                                            area,
-                                                            margin_x,
-                                                            margin_y)
-
-        raise AttributeError(f"{area_type} not found")
+            getattr(self, f"{area_type.lower()}Size")(context, area)
